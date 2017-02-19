@@ -1,7 +1,22 @@
+@import "tachyons";
+
 $font-stack:    Helvetica, sans-serif;
 $primary-color: #333;
 
 body {
   font: 100% $font-stack;
   color: $primary-color;
+}
+
+.platform-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+.spotify-svg, .soundcloud-svg {
+  fill: #111;
+  opacity: .45;
+  transition: opacity 200ms;
+  &:hover {
+    opacity: 1;
+  }
 }

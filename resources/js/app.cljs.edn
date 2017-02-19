@@ -1,3 +1,5 @@
-{:require  [one-of-each.app]
- :init-fns [one-of-each.app/init]
- :compiler-options {:asset-path "js/app.out"}}
+{:require  [ofe.app]
+ :init-fns [ofe.app/init]
+ :compiler-options {:asset-path "/js/app.out"
+                    :closure-defines {ofe.config/contentful-space-id "lv8xkcuq2e10"
+                                      ofe.config/contentful-access-token "717fea63337a2460cc98f539021cf9c43d062dd305864553c56729edc58cbe92"}}}
