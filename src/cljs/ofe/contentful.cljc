@@ -29,7 +29,9 @@
   (last (string/split track-slug #"-")))
 
 (defrecord Track [id title artist album year cover-art
-                  spotify-uri soundcloud-id soundcloud-official?])
+                  spotify-uri soundcloud-id soundcloud-official?
+                  posted-at ;should be part of a "parent" record but to lazy rn
+                  ])
 
 (defn key-by [kfn xs]
   (reduce (fn [m i]
@@ -42,6 +44,7 @@
 (defn contentful->tracks [{:keys [items includes] :as data}]
   (-> (fn [i]
         (map->Track {:id (-> i :sys :id)
+                     :posted-at (-> i :sys :createdAt)
                      :title (-> i :fields :title)
                      :artist (-> i :fields :artist)
                      :album (-> i :fields :album)

@@ -24,11 +24,12 @@
    (fn [ev]
      (let [items (-> (.. ev -target getResponseJson)
                      (js->clj :keywordize-keys true))
-           tracks (content/contentful->tracks items)]
-       (reset! core/!state {:tracks tracks})
+           tracks (content/contentful->tracks items)
+           ordered (vec (reverse (sort-by :posted-at tracks)))]
+       (reset! core/!state {:tracks ordered})
        (core/start-router!)
        (when (= :ofe/start (first (r/match core/router js/window.location.pathname)))
-         (r/navigate! core/router :ofe/track {:track-slug (content/track-slug (first tracks))}))))))
+         (r/navigate! core/router :ofe/track {:track-slug (content/track-slug (first ordered))}))))))
 
 (defn init []
   ;; (reset! !state (->> (js->clj js/window.ofe_static_appstate :keywordize-keys true)
