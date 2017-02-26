@@ -45,18 +45,20 @@
                       :tracer :ofe.contentful/contentful}))
 
 (boot.pod/require-in @perun/render-pod 'ofe.static)
-(task-options! contentful {:renderer 'ofe.static/render-track-page})
+(task-options! contentful {:renderer 'ofe.static/render-track-page}
+               perun/atom-feed {:out-dir ""
+                                :extensions [""]
+                                :base-url "https://one-of-each.xyz/"
+                                :filterer (fn [page] (.startsWith (:permalink page) "/t/"))
+                                :site-title "A Music Blog"})
 
 (deftask build []
   (comp (speak)
         (cljs)
         (sass)
         (contentful)
-        #_(perun/atom-feed ;:filename "atom.xml"
-                         :out-dir ""
-                         :base-url "https://one-of-each.xyz/"
-                         :filterer (fn [page] (prn page) false)
-                         :site-title "A Music Blog")))
+        ;; TODO needs more work
+        #_(perun/atom-feed)))
 
 (deftask run []
   (comp (serve :handler 'ofe.static/handler)
