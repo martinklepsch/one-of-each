@@ -1,3 +1,0 @@
-  (boot.pod/require-in @perun/render-pod 'ofe.static)
-(boot (contentful))
-(boot (contentful) (target))

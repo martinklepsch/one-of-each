@@ -1,3 +1,4 @@
-/target
-/.nrepl-port
-/out
+target
+.nrepl-port
+.nrepl-history
+out
