@@ -35,6 +35,8 @@
  '[io.perun              :as perun]
  '[ofe.static            :as ofe])
 
+(deftask deps [])
+
 (deftask contentful
   [r renderer RENDERER sym "page renderer (fully qualified symbol which resolves to a function)"]
   (perun/render-task {:task-name "contentful"
@@ -98,6 +100,9 @@
         (build)
         (sift :include #{#"^t/" #"js/app\.js" #"css/sass\.css" #"index\.html"})
         (write-file-maps-edn)
-        (sync-bucket :confetti-edn "one-of-each-xyz.confetti.edn"
+        (sync-bucket :bucket (System/getenv "S3_BUCKET_NAME")
+                     :access-key (System/getenv "AWS_ACCESS_KEY")
+                     :secret-key (System/getenv "AWS_SECRET_KEY")
+                     :cloudfront-id (System/getenv "CLOUDFRONT_ID")
                      :file-maps-path "uploads.edn"
                      :prune true)))
