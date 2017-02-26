@@ -25,8 +25,9 @@
       [:meta {:content (str "https:" (:cover-art track) "?w=" img-width) :property "og:image"}]
       [:meta {:content img-width :property "og:image:width"}]
       [:meta {:content img-width :property "og:image:height"}]
-      [:meta {:content (:album track) :property "music:album"}]
-      [:meta {:content (:artist track) :property "music:musician"}]
+      ;; These need to point to pages with the respective type
+      ;; [:meta {:content (:album track) :property "music:album"}]
+      ;; [:meta {:content (:artist track) :property "music:musician"}]
       [:meta {:content (:year track) :property "music:release_date"}]
 
       [:meta {:content "summary_large_image", :name "twitter:card"}]

@@ -2,8 +2,7 @@ machine:
   java:
     version: oraclejdk8
   environment:
-    # Boot sometimes uses over 4G when dowloading deps
-    # Limit could be higher probably, 2-3G?
+    BOOT_VERSION: 2.7.1
     _JAVA_OPTIONS: "-Xms512m -Xmx1024m"
 dependencies:
   pre:
