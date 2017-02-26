@@ -9,7 +9,8 @@ dependencies:
     - curl -L https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh -o ~/bin/boot
     - chmod +x ~/bin/boot
   override:
-    - boot deps
+    # consider building here so all dynamic deps are also cached properly
+    - boot deploy
   cache_directories:
     - "~/bin"
     - "~/.m2"
@@ -18,4 +19,4 @@ dependencies:
 
 test:
   override:
-    - boot deploy
+    - echo "nothing to do here"
