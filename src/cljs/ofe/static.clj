@@ -1,22 +1,60 @@
 (ns ofe.static
-  (:require [rum.core :as rum]
-            [net.cgrand.enlive-html :as html]
-            [clojure.data.json :as json]
-            [ofe.components :as c]
+  (:require [hiccup.page :as hp]
+            [clojure.tools.logging :as log]
+            [pandeiro.boot-http.impl]
             [ofe.contentful :as content]))
-
-(html/deftemplate main-template "index.html"
-  [track-data container-contents]
-  [:#container]  (html/html-content container-contents)
-  [:#track-data] (html/content (str "var track = " (json/write-str track-data))))
 
 (defn contentful-paths [_]
   (->> (content/get-tracks!)
        (content/contentful->tracks)
-       (content/key-by #(str "t/" (:id %) ".html"))))
+       (content/key-by content/track-uri)))
 
 (defn render-track-page [track]
-  (apply str (main-template track (rum/render-html (c/app (atom [track]))))))
+  (hp/html5
+   {}
+   (let [title (str "one of each: " (:title track) " by " (:artist track))
+         img-width 600]
+     [:head {:prefix "og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# music: http://ogp.me/ns/music#"}
+      [:title title]
+      [:link {:href "/css/sass.css" :rel "stylesheet" :type "text/css" :media "screen"}]
+
+      [:meta {:content "380101619041086" :property "fb:app_id"}]
+      [:meta {:content "music.song" :property "og:type"}]
+      [:meta {:content (str content/site-base-uri (content/track-uri track)) :property "og:url"}]
+      [:meta {:content title :property "og:title"}]
+      [:meta {:content (str "https:" (:cover-art track) "?w=" img-width) :property "og:image"}]
+      [:meta {:content img-width :property "og:image:width"}]
+      [:meta {:content img-width :property "og:image:height"}]
+      [:meta {:content (:album track) :property "music:album"}]
+      [:meta {:content (:artist track) :property "music:musician"}]
+      [:meta {:content (:year track) :property "music:release_date"}]
+
+      [:meta {:content "summary_large_image", :name "twitter:card"}]
+      [:meta {:content "@oneofeach", :name "twitter:site"}]
+      [:meta {:content "@martinklepsch" :name "twitter:creator"}]
+      [:meta {:content title :name "twitter:title"}]
+      [:meta {:content title :name "twitter:description"}]
+      [:meta {:content (str "https:" (:cover-art track) "?w=" 600) :name "twitter:image"}]
+
+      [:meta {:charset "utf-8"}]
+      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]])
+   [:body.system-sans-serif.dark-gray
+    [:div#container]
+    [:script {:type "text/javascript" :src "/js/app.js"}]]))
+
+;; The default resources handler can't determine the content type for
+;; track pages properly so we do it manually here
+
+(defn wrap-content-type [handler]
+  (fn [req]
+    (let [res (handler req)]
+      (if (.startsWith (:uri req) "/t/")
+        (assoc-in res [:headers "Content-Type"] "text/html")
+        res))))
+
+(def handler
+  (-> (pandeiro.boot-http.impl/resources-handler {})
+      (wrap-content-type)))
 
 (comment
   (contentful-paths 0)

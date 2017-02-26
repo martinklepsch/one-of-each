@@ -20,3 +20,18 @@ body {
     opacity: 1;
   }
 }
+
+.big-box-shadow {
+  box-shadow: 0px 50px 160px 0 rgba(20,52,92,0.18);
+}
+
+.btn-reset {
+  cursor: pointer;
+  outline: none;
+  border-width: 0;
+  background-color: transparent;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: .6;
+  }
+}
