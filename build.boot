@@ -33,9 +33,11 @@
  '[confetti.boot-confetti :refer [sync-bucket]]
  '[deraen.boot-sass      :refer [sass]]
  '[io.perun              :as perun]
- '[ofe.static            :as ofe])
+ '[ofe.static            :as ofe]
+ '[ofe.contentful        :as content])
 
 (deftask deps [])
+
 
 (deftask contentful
   [r renderer RENDERER sym "page renderer (fully qualified symbol which resolves to a function)"]
@@ -47,18 +49,50 @@
 (boot.pod/require-in @perun/render-pod 'ofe.static)
 (task-options! contentful {:renderer 'ofe.static/render-track-page}
                perun/atom-feed {:out-dir ""
-                                :extensions [""]
+                                :extensions []
                                 :base-url "https://one-of-each.xyz/"
-                                :filterer (fn [page] (.startsWith (:permalink page) "/t/"))
+                                :filterer (fn [page] (prn page) (.startsWith (:permalink page) "/t/"))
                                 :site-title "A Music Blog"})
+
+
+(defn my-passthru [inputs tracer global-meta]
+  (prn inputs)
+  (io.perun/trace tracer
+                  (for [[path {:keys [entry]}] inputs]
+                    (do 
+                      (prn entry)
+                      (merge entry (io.perun.meta/path-meta path global-meta)
+                             {:blba :blub})))))
+
+(defn contentful-paths* [fs]
+  (content/key-by :path (io.perun.meta/get-meta fs)))
 
 (deftask build []
   (comp (speak)
-        (cljs)
-        (sass)
-        (contentful)
+        (with-pre-wrap fs
+          (let [pages (ofe/contentful-meta nil)
+                tmp   (tmp-dir!)]
+            (doseq [p pages
+                    :let [f (clojure.java.io/file tmp (:path p))]]
+              (clojure.java.io/make-parents f)
+              (.createNewFile f))
+            (-> fs
+                (add-resource tmp)
+                (io.perun.meta/set-meta (ofe/contentful-meta nil))
+                commit!)))
+        ;; (cljs)
+        ;; (sass)
+        (perun/render-task {:task-name "contentful"
+                            :paths-fn contentful-paths*
+                            :renderer 'ofe.static/render-track-page
+                            :tracer :ofe.contentful/contentful})
+
+        ;; (contentful)
+        )
+
+
         ;; TODO needs more work
-        #_(perun/atom-feed)))
+        (perun/atom-feed))
 
 (deftask run []
   (comp (serve :handler 'ofe.static/handler)

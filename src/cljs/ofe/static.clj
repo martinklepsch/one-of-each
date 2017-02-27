@@ -7,7 +7,15 @@
 (defn contentful-paths [_]
   (->> (content/get-tracks!)
        (content/contentful->tracks)
+       (map #(assoc % :uuid (:id %)))
        (content/key-by content/track-uri)))
+
+(defn contentful-meta [_]
+  (->> (content/get-tracks!)
+       (content/contentful->tracks)
+       (map #(assoc % :uuid (:id %)))
+       (map #(assoc % :path (content/track-uri %)))
+       (map #(into {} %))))
 
 (defn render-track-page [track]
   (hp/html5
@@ -38,10 +46,10 @@
       [:meta {:content (str "https:" (:cover-art track) "?w=" 600) :name "twitter:image"}]
 
       [:meta {:charset "utf-8"}]
-      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]])
-   [:body.system-sans-serif.dark-gray
-    [:div#container]
-    [:script {:type "text/javascript" :src "/js/app.js"}]]))
+      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]]
+     [:body.system-sans-serif.dark-gray
+      [:div#container]
+      [:script {:type "text/javascript" :src "/js/app.js"}]])))
 
 ;; The default resources handler can't determine the content type for
 ;; track pages properly so we do it manually here
@@ -58,10 +66,14 @@
       (wrap-content-type)))
 
 (comment
-  (contentful-paths 0)
+  (contentful-paths nil)
 
   (boot.pod/require-in @perun/render-pod 'ofe.static)
 
   (boot.core/boot (contentful :renderer 'ofe.static/render-track-page))
+
+  (require 'io.perun.core)
+
+  (io.perun.core/filename "hello/world.html")
 
   )
