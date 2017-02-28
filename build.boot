@@ -54,6 +54,7 @@
                       :tracer :ofe.contentful/contentful}))
 
 (boot.pod/require-in @perun/render-pod 'ofe.static)
+(boot.pod/require-in @perun/print-meta-pod 'ofe.static)
 (task-options! contentful {:renderer 'ofe.static/render-track-page}
                perun/atom-feed {:out-dir ""
                                 :extensions []

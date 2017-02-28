@@ -8,12 +8,15 @@
   (->> (content/get-tracks!)
        (content/contentful->tracks)
        (map #(assoc % :uuid (:id %)))
+       (map #(assoc % :author "@martinklepsch"))
+       (map #(into {} %))
        (content/key-by content/track-uri)))
 
 (defn contentful-meta [_]
   (->> (content/get-tracks!)
        (content/contentful->tracks)
        (map #(assoc % :uuid (:id %)))
+       (map #(assoc % :author "@martinklepsch"))
        (map #(assoc % :path (content/track-uri %)))
        (map #(into {} %))))
 
@@ -53,7 +56,7 @@
 
 (defn render-track-page* [track]
   (prn track)
-  (assoc track :rendererd (render-track-page track)))
+  (assoc track :rendered (render-track-page track)))
 
 ;; The default resources handler can't determine the content type for
 ;; track pages properly so we do it manually here
