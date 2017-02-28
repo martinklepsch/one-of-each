@@ -46,10 +46,14 @@
       [:meta {:content (str "https:" (:cover-art track) "?w=" 600) :name "twitter:image"}]
 
       [:meta {:charset "utf-8"}]
-      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]]
-     [:body.system-sans-serif.dark-gray
-      [:div#container]
-      [:script {:type "text/javascript" :src "/js/app.js"}]])))
+      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]])
+   [:body.system-sans-serif.dark-gray
+    [:div#container]
+    [:script {:type "text/javascript" :src "/js/app.js"}]]))
+
+(defn render-track-page* [track]
+  (prn track)
+  (assoc track :rendererd (render-track-page track)))
 
 ;; The default resources handler can't determine the content type for
 ;; track pages properly so we do it manually here

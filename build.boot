@@ -38,10 +38,17 @@
 
 (deftask deps [])
 
+(defn contentful-paths* [fs]
+  (content/key-by :path (io.perun.meta/get-meta fs)))
 
 (deftask contentful
   [r renderer RENDERER sym "page renderer (fully qualified symbol which resolves to a function)"]
-  (perun/render-task {:task-name "contentful"
+  (perun/content-task {:task-name "contentful"
+                       :render-form-fn (fn [data] `(ofe.static/render-track-page* ~data))
+                       :paths-fn ofe/contentful-paths
+                       :tracer :ofe.contentful/contentful
+                       :pod perun/render-pod})
+  #_(perun/render-task {:task-name "contentful"
                       :paths-fn ofe/contentful-paths
                       :renderer renderer
                       :tracer :ofe.contentful/contentful}))
@@ -56,16 +63,12 @@
 
 
 (defn my-passthru [inputs tracer global-meta]
-  (prn inputs)
   (io.perun/trace tracer
                   (for [[path {:keys [entry]}] inputs]
                     (do 
                       (prn entry)
                       (merge entry (io.perun.meta/path-meta path global-meta)
                              {:blba :blub})))))
-
-(defn contentful-paths* [fs]
-  (content/key-by :path (io.perun.meta/get-meta fs)))
 
 (deftask build []
   (comp (speak)
