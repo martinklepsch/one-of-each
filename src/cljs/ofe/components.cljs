@@ -166,7 +166,7 @@
        [:a.f6.mb3.link.pv3
         {:style    (when-not prev {:pointerEvents "none"})
          :class    (if prev "near-black" "silver")
-         :href (str "/t/" (content/track-slug prev))
+         :href     (when prev (str "/t/" (content/track-slug prev)))
          :on-click #(do (.preventDefault %)
                         (r/navigate! core/router :ofe/track {:track-slug (content/track-slug prev)}))}
         "← prev"]
@@ -174,7 +174,7 @@
        [:a.f6.mb3.link.pv3
         {:style    (when-not next {:pointerEvents "none"})
          :class    (if next "near-black" "silver")
-         :href     (str "/t/" (content/track-slug next))
+         :href     (when next (str "/t/" (content/track-slug next)))
          :on-click #(do (.preventDefault %)
                         (r/navigate! core/router :ofe/track {:track-slug (content/track-slug next)}))}
         "next →"]]]
