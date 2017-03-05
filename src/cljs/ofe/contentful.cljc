@@ -1,5 +1,6 @@
 (ns ofe.contentful
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [taoensso.truss :as truss #?@(:cljs [:include-macros true])])
   #?(:clj (:require [clojure.data.json :as json])))
 
 (def site-base-uri "https://one-of-each.xyz/")
@@ -19,7 +20,10 @@
          (json/read-str :key-fn keyword))))
 
 (defn track-slug [track-info]
-  (-> (str (string/lower-case (str (:title track-info) "-" (:artist track-info))) "-" (:id track-info))
+  (-> (str (string/lower-case
+            (str (truss/have string? (:title track-info)) "-"
+                 (truss/have string? (:artist track-info)))) "-"
+           (truss/have string? (:id track-info)))
       (string/replace #"\s+" "-")))
 
 (defn track-uri [track-info]
@@ -59,7 +63,20 @@
                                   (get-in assets [asset-id :fields :file :url]))}))
       (mapv items)))
 
-
+(defn have-track
+  "Returns given arg if it's a valid `track`, otherwise throws an error"
+  [track]
+  (truss/with-dynamic-assertion-data {:track track}
+    (truss/have? map? track)
+    (truss/have? [:ks>= #{:id :posted-at :title :artist :album :year :spotify-uri
+                          :soundcloud-id :soundcloud-official? :cover-art}] track)
+    (truss/have? string? (:id track))
+    (truss/have? string? (:posted-at track))
+    (truss/have? string? (:title track))
+    (truss/have? string? (:artist track))
+    (truss/have? string? (:album track))
+    (truss/have? integer? (:year track)))
+  track) ; Return input if nothing's thrown
 
 (comment
 

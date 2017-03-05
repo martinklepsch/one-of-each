@@ -7,12 +7,13 @@
 (defn contentful-paths [_]
   (->> (content/get-tracks!)
        (content/contentful->tracks)
-       (map #(assoc % :uuid (:id %)))
+       (map #(assoc {} :track (into {} %)))
+       (map #(assoc % :uuid (-> % :track :id)))
        (map #(assoc % :author "@martinklepsch"))
-       (map #(into {} %))
-       (content/key-by content/track-uri)))
+       (map #(assoc % :title (str "one of each: " (-> % :track :title)  " by " (-> % :track :artist))))
+       (content/key-by (comp content/track-uri :track))))
 
-(defn contentful-meta [_]
+#_(defn contentful-meta [_]
   (->> (content/get-tracks!)
        (content/contentful->tracks)
        (map #(assoc % :uuid (:id %)))
@@ -20,11 +21,12 @@
        (map #(assoc % :path (content/track-uri %)))
        (map #(into {} %))))
 
-(defn render-track-page [track]
+(defn render-track-page* [{:keys [track] :as page}]
   (hp/html5
    {}
-   (let [title (str "one of each: " (:title track) " by " (:artist track))
+   (let [title     (:title page)
          img-width 600]
+     (content/have-track track)
      [:head {:prefix "og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# music: http://ogp.me/ns/music#"}
       [:title title]
       [:link {:href "/css/sass.css" :rel "stylesheet" :type "text/css" :media "screen"}]
@@ -48,15 +50,16 @@
       [:meta {:content title :name "twitter:description"}]
       [:meta {:content (str "https:" (:cover-art track) "?w=" 600) :name "twitter:image"}]
 
+      [:link {:rel "alternate" :type "application/atom+xml" :title "one of each: New Tracks" :href "/atom.xml"}]
+
       [:meta {:charset "utf-8"}]
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]])
    [:body.system-sans-serif.dark-gray
     [:div#container]
     [:script {:type "text/javascript" :src "/js/app.js"}]]))
 
-(defn render-track-page* [track]
-  (prn track)
-  (assoc track :rendered (render-track-page track)))
+(defn render-track-page [page]
+  (assoc page :rendered (render-track-page* page)))
 
 ;; The default resources handler can't determine the content type for
 ;; track pages properly so we do it manually here

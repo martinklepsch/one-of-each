@@ -17,6 +17,7 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.473"]
+                 [com.taoensso/truss "1.3.7"] ;sanity
                  [hiccup "1.0.5"]
                  [ring "1.5.1"]
                  [perun "0.4.2-SNAPSHOT"]
@@ -38,65 +39,32 @@
 
 (deftask deps [])
 
-(defn contentful-paths* [fs]
-  (content/key-by :path (io.perun.meta/get-meta fs)))
-
 (deftask contentful
   [r renderer RENDERER sym "page renderer (fully qualified symbol which resolves to a function)"]
   (perun/content-task {:task-name "contentful"
-                       :render-form-fn (fn [data] `(ofe.static/render-track-page* ~data))
+                       :render-form-fn (fn [data] `(~renderer ~data))
                        :paths-fn ofe/contentful-paths
                        :tracer :ofe.contentful/contentful
-                       :pod perun/render-pod})
-  #_(perun/render-task {:task-name "contentful"
-                      :paths-fn ofe/contentful-paths
-                      :renderer renderer
-                      :tracer :ofe.contentful/contentful}))
+                       :pod perun/render-pod}))
 
 (boot.pod/require-in @perun/render-pod 'ofe.static)
 (boot.pod/require-in @perun/print-meta-pod 'ofe.static)
-(task-options! contentful {:renderer 'ofe.static/render-track-page}
-               perun/atom-feed {:out-dir ""
-                                :extensions []
-                                :base-url "https://one-of-each.xyz/"
-                                :filterer (fn [page] (prn page) (.startsWith (:permalink page) "/t/"))
-                                :site-title "A Music Blog"})
 
+(task-options!
+ contentful {:renderer 'ofe.static/render-track-page}
+ perun/atom-feed {:out-dir "."
+                  :extensions []
+                  :filterer :title
+                  :site-title "one of each: a personal music blog by @martinklepsch"})
 
-(defn my-passthru [inputs tracer global-meta]
-  (io.perun/trace tracer
-                  (for [[path {:keys [entry]}] inputs]
-                    (do 
-                      (prn entry)
-                      (merge entry (io.perun.meta/path-meta path global-meta)
-                             {:blba :blub})))))
 
 (deftask build []
   (comp (speak)
-        (with-pre-wrap fs
-          (let [pages (ofe/contentful-meta nil)
-                tmp   (tmp-dir!)]
-            (doseq [p pages
-                    :let [f (clojure.java.io/file tmp (:path p))]]
-              (clojure.java.io/make-parents f)
-              (.createNewFile f))
-            (-> fs
-                (add-resource tmp)
-                (io.perun.meta/set-meta (ofe/contentful-meta nil))
-                commit!)))
-        ;; (cljs)
-        ;; (sass)
-        (perun/render-task {:task-name "contentful"
-                            :paths-fn contentful-paths*
-                            :renderer 'ofe.static/render-track-page
-                            :tracer :ofe.contentful/contentful})
-
-        ;; (contentful)
-        )
-
-
-        ;; TODO needs more work
-        (perun/atom-feed))
+        (perun/global-metadata)
+        (cljs)
+        (sass)
+        (contentful)
+        (perun/atom-feed)))
 
 (deftask run []
   (comp (serve :handler 'ofe.static/handler)
@@ -105,7 +73,6 @@
         (cljs-repl)
         (reload)
         (build)))
-
 
 (deftask production []
   (task-options! cljs {:optimizations :advanced}
@@ -138,7 +105,7 @@
   []
   (comp (production)
         (build)
-        (sift :include #{#"^t/" #"js/app\.js" #"css/sass\.css" #"index\.html"})
+        (sift :include #{#"^t/" #"js/app\.js" #"css/sass\.css" #"index\.html" #"atom\.xml"})
         (write-file-maps-edn)
         (sync-bucket :bucket (System/getenv "S3_BUCKET_NAME")
                      :access-key (System/getenv "AWS_ACCESS_KEY")
