@@ -96,7 +96,7 @@
                         (or shown-player platform-pref))]
     (js/console.log show-player?)
     [:div
-     [:div.big-box-shadow
+     [:div.big-box-shadow.bg-light-gray
       [:img.db
        {:width max-width
         :height max-width
@@ -140,8 +140,10 @@
     [:div.fl-ns.pa4
      [:h2.f2.mb2.mt0 (:title track-info)]
      [:p.lh-copy
-      [:span.f6.mid-gray.db [:span.gray " by "] (:artist track-info)]
-      [:span.f6.mid-gray.db [:span.gray " on "] (:album track-info) " (" (:year track-info) ")"]]]]])
+      [:span.f6.mid-gray.db [:span.gray "by "] (:artist track-info)]
+      (when (:album track-info)
+        [:span.f6.mid-gray.db [:span.gray "on "] (:album track-info) " (" (:year track-info) ")"]
+        [:span.f6.mid-gray.db [:span.gray "in "] (:year track-info)])]]]])
 
 (rum/defc site-meta []
   [:div.tr.f6.gray.pr2.lh-copy
