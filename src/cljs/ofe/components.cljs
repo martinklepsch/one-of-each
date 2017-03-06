@@ -141,7 +141,7 @@
      [:h2.f2.mb2.mt0 (:title track-info)]
      [:p.lh-copy
       [:span.f6.mid-gray.db [:span.gray "by "] (:artist track-info)]
-      (when (:album track-info)
+      (if (:album track-info)
         [:span.f6.mid-gray.db [:span.gray "on "] (:album track-info) " (" (:year track-info) ")"]
         [:span.f6.mid-gray.db [:span.gray "in "] (:year track-info)])]]]])
 
