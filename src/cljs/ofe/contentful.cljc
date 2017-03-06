@@ -74,7 +74,7 @@
     (truss/have? string? (:posted-at track))
     (truss/have? string? (:title track))
     (truss/have? string? (:artist track))
-    (truss/have? string? (:album track))
+    ;; (truss/have? string? (:album track))
     (truss/have? integer? (:year track)))
   track) ; Return input if nothing's thrown
 
