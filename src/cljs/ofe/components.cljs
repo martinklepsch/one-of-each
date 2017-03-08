@@ -64,12 +64,12 @@
   [spotify-track-uri]
   {:pre [(string? spotify-track-uri)]}
   [:iframe.db {:src (str "https://embed.spotify.com/?uri=" spotify-track-uri)
-               :width max-width :height 80 :frameBorder 0 :allowTransparency true}])
+               :width "100%" :height 80 :frameBorder 0 :allowTransparency true}])
 
 (rum/defc soundcloud-player
   [soundcloud-id]
   {:pre [(string? soundcloud-id)]}
-  [:iframe.db {:width max-width :height 110 :scrolling "no" :frameBorder "no"
+  [:iframe.db {:width "100%" :height 110 :scrolling "no" :frameBorder "no"
                :src (str "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/" soundcloud-id "&amp;color=111&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false")}])
 
 (def humanize-platform
@@ -96,11 +96,9 @@
                         (or shown-player platform-pref))]
     (js/console.log show-player?)
     [:div
-     [:div.big-box-shadow.bg-light-gray
-      [:img.db
-       {:width max-width
-        :height max-width
-        :src (str "https:" (:cover-art track-info) "?w=" max-width)}]
+     [:div.big-box-shadow.bg-light-gray.mw-400-ns
+      [:div.aspect-ratio.aspect-ratio--1x1
+       [:img.db.w-100 {:src (str "https:" (:cover-art track-info) "?w=" max-width)}]]
       (when show-player?
         (case show-player?
           :spotify    (spotify-player (:spotify-uri track-info))

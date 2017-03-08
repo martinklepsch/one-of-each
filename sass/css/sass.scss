@@ -35,3 +35,9 @@ body {
     opacity: .6;
   }
 }
+
+@media screen and (min-width:30em){
+  .mw-400-ns {
+    max-width: 400px;
+  }
+}
