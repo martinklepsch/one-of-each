@@ -139,15 +139,23 @@
      (track-players track-info)]
     [:div.fl-ns.pa4
      [:h2.f2.mb2.mt0 (:title track-info)]
-     [:p.lh-copy
+     [:div.lh-copy
       [:span.f6.mid-gray.db [:span.gray "by "] (:artist track-info)]
       (if (:album track-info)
         [:span.f6.mid-gray.db [:span.gray "on "] (:album track-info) " (" (:year track-info) ")"]
-        [:span.f6.mid-gray.db [:span.gray "in "] (:year track-info)])]]]])
+        [:span.f6.mid-gray.db [:span.gray "in "] (:year track-info)])
+      #_[:p.mid-gray.f6.mt5
+       (:note track-info)]]]]])
 
 (rum/defc site-meta []
   [:div.tr.f6.gray.pr2.lh-copy
-   [:span.db.mb2 [:sup.normal "✝"] "inoffical"]
+   ;; [:span.db.mb2 [:sup.normal "✝"] "inoffical"]
+   (let [icon-size 24]
+     [:div
+      [:a {:href "http://twitter.com/_one_of_each" :alt "one of each on Facebook"}
+       [:img.mr2 {:width icon-size :height icon-size :src (str "https://icon.now.sh/twitter/" icon-size "/444")}]]
+      [:a {:href "https://www.facebook.com/oneofeachh/" :alt "one of each on Twitter"}
+      [:img.mr {:width icon-size :height icon-size :src (str "https://icon.now.sh/facebook/" icon-size "/444")}]]])
    [:span.db "curated by " [:a.link.dark-gray {:href "https://twitter.com/martinklepsch"} "@martinklepsch"]]
    [:span.db "have " [:a.link.dark-gray {:href "mailto:martinklepsch+oneofeach@googlemail.com"} "something to say?"]]
    [:button.btn-reset.f6.pa0 {:on-click #(pref/clear pref/always-load-platform)} "clear preferences"]])
