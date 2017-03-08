@@ -32,7 +32,7 @@
 (defn track-slug->id [track-slug]
   (last (string/split track-slug #"-")))
 
-(defrecord Track [id title artist album year cover-art
+(defrecord Track [id title artist album year cover-art note
                   spotify-uri soundcloud-id soundcloud-official?
                   posted-at ;should be part of a "parent" record but to lazy rn
                   ])
@@ -53,6 +53,7 @@
                      :artist (-> i :fields :artist)
                      :album (-> i :fields :album)
                      :year (-> i :fields :year)
+                     :note (-> i :fields :personalNote)
 
                      :spotify-uri (-> i :fields :spotifyUri)
                      :soundcloud-id (-> i :fields :soundcloudId)
