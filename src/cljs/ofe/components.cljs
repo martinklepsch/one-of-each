@@ -171,21 +171,22 @@
      [:div.fixed-ns
       (logo)
       [:div.ph4.pv3
-       [:a.f6.mb3.link.pv3
+       [:a.f6.mb3.link.pv3.db.tc
         {:style    (when-not prev {:pointerEvents "none"})
          :class    (if prev "near-black" "silver")
          :href     (when prev (str "/t/" (content/track-slug prev)))
          :on-click #(do (.preventDefault %)
                         (r/navigate! core/router :ofe/track {:track-slug (content/track-slug prev)}))}
-        "← prev"]
-       [:span " · "]
-       [:a.f6.mb3.link.pv3
+        [:span.db [:img {:src (str "https://icon.now.sh/chevron/up/" (if prev "111" "999"))}]]
+        "newer"]
+       [:a.f6.mb3.link.pv3.db.tc
         {:style    (when-not next {:pointerEvents "none"})
          :class    (if next "near-black" "silver")
          :href     (when next (str "/t/" (content/track-slug next)))
          :on-click #(do (.preventDefault %)
                         (r/navigate! core/router :ofe/track {:track-slug (content/track-slug next)}))}
-        "next →"]]]
+        "older"
+        [:span.db [:img {:src (str "https://icon.now.sh/chevron/down/" (if next "111" "999")) }]]]]]
      (when current
        [:div.mt6-ns.ml7-ns.fl-ns
         (track current)])
